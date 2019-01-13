@@ -1,0 +1,25 @@
+{
+    "name": "deemru/cryptash",
+    "description": "Hash-based encrypt/decrypt",
+    "keywords": [ "cryptography", "confidentiality", "integrity", "authenticity" ],
+    "homepage": "https://github.com/deemru/Cryptash",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dmitrii Pichulin",
+            "email": "deem@deem.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": { "deemru\\": "" }
+    },
+    "scripts": {
+        "test": [
+            "@php test/selftest.php"
+        ]
+    }
+}
