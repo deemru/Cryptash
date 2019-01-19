@@ -3,6 +3,15 @@
 require __DIR__ . '/../vendor/autoload.php';
 use deemru\Cryptash;
 
+$cryptash = new Cryptash( 'Password' );
+$msg = 'Hello, world!';
+
+$encrypted = $cryptash->encryptash( $msg );
+$decrypted = $cryptash->decryptash( $encrypted );
+
+if( $decrypted !== $msg )
+    exit( 1 );
+
 function test_secqru_cryptash()
 {
     $hashes = array( 'md5', 'sha1', 'sha256', 'gost' );
@@ -14,7 +23,7 @@ function test_secqru_cryptash()
     if( version_compare( PHP_VERSION, '5.6.0' ) >= 0 )
     {
         $pass_sizes = array_merge( $pass_sizes, array( 0, 1, 16, 128 ) );
-        $sizes = array_merge( $sizes, array( 1, 3, 7, 31, 32, 33, 337 ) );
+        $sizes = array_merge( $sizes, array( 0, 1, 3, 7, 31, 32, 33, 337 ) );
         $ivszs = array_merge( $ivszs, array( 0, 1, 2, 3, 8, 16, 32 ) );
         $macszs = array_merge( $macszs, array( 0, 1, 2, 3, 8, 16, 32 ) );
     }
@@ -26,18 +35,14 @@ function test_secqru_cryptash()
         foreach( $ivszs as $ivsz )
         foreach( $macszs as $macsz )
         {
-            $pass = '';
-            for( $i = 0; $i < $pass_size; $i++ )
-                $pass .= chr( mt_rand() );
+            $pass = Cryptash::rnd( $pass_size );
 
             $encryptash = new Cryptash( $pass, $ivsz, $macsz, $hash );
             $decryptash = new Cryptash( $pass, $ivsz, $macsz, $hash );
 
             foreach( $sizes as $size )
             {
-                $rnd = '';
-                for( $i = 0; $i < $size; $i++ )
-                    $rnd .= chr( mt_rand() );
+                $rnd = Cryptash::rnd( $size );
 
                 $encoded = $encryptash->encryptash( $rnd );
                 $decoded = $decryptash->decryptash( $encoded );
