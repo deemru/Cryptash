@@ -59,12 +59,16 @@ class Cryptash
             return false;
 
         $key = self::hash( substr( $data, 0, $this->ivsz ) . $this->psw );
-        $mac = substr( $data, $this->ivsz, $this->macsz );
+        if( $this->macsz )
+            $mac = substr( $data, $this->ivsz, $this->macsz );
         $data = self::cbc( substr( $data, 0, $this->ivsz + $this->macsz ),
                            $key, substr( $data, $this->macsz + $this->ivsz ) );
 
-        if( $mac !== substr( self::hash( $data . $key ), 0, $this->macsz ) )
+        if( $this->macsz && $mac !== substr( self::hash( $data . $key ), 0, $this->macsz ) )
             return false;
+
+        if( strlen( $data ) === $this->ivsz )
+            return '';
 
         return substr( $data, $this->ivsz );
     }
