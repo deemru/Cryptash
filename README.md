@@ -1,6 +1,6 @@
 # Cryptash
 
-[![packagist](https://img.shields.io/packagist/v/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash) [![php-v](https://img.shields.io/packagist/php-v/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash)  [![travis](https://img.shields.io/travis/deemru/Cryptash.svg?label=travis)](https://travis-ci.org/deemru/Cryptash) [![codacy](https://img.shields.io/codacy/grade/ee0862d2598c47b6a8c8856d05fb0c37.svg?label=codacy)](https://app.codacy.com/project/deemru/Cryptash/dashboard) [![license](https://img.shields.io/packagist/l/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash)
+[![packagist](https://img.shields.io/packagist/v/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash) [![php-v](https://img.shields.io/packagist/php-v/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash)  [![GitHub](https://img.shields.io/github/actions/workflow/status/deemru/Cryptash/php.yml?label=github%20actions)](https://github.com/deemru/Cryptash/actions/workflows/php.yml) [![codacy](https://img.shields.io/codacy/grade/ee0862d2598c47b6a8c8856d05fb0c37.svg?label=codacy)](https://app.codacy.com/gh/deemru/Cryptash/files) [![license](https://img.shields.io/packagist/l/deemru/cryptash.svg)](https://packagist.org/packages/deemru/cryptash)
 
 [Cryptash](https://github.com/deemru/Cryptash) implements hash based encryption with user-defined size of [IV](https://en.wikipedia.org/wiki/Initialization_vector) and [MAC](https://en.wikipedia.org/wiki/Message_authentication_code).
 

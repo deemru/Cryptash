@@ -4,6 +4,12 @@ namespace deemru;
 
 class Cryptash
 {
+    private $psw;
+    private $hash;
+    private $ivsz;
+    private $cbcsz;
+    private $macsz;
+
     /**
      * Creates Cryptash instance
      *
