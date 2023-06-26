@@ -23,7 +23,7 @@ class Cryptash
         $this->psw = $psw;
         $this->hash = $hash;
         $this->ivsz = max( 0, $ivsz );
-        $this->cbcsz = strlen( self::hash( '' ) );
+        $this->cbcsz = strlen( hash( $this->hash, '', true ) );
         $this->macsz = min( $macsz, $this->cbcsz );
     }
 
@@ -38,18 +38,18 @@ class Cryptash
     {
         if( $this->ivsz )
         {
-            $iv = self::rnd( $this->ivsz );
-            $data = self::rnd( $this->ivsz ) . $data;
+            $iv = $this->rnd( $this->ivsz );
+            $data = $this->rnd( $this->ivsz ) . $data;
         }
         else
             $iv = '';
 
-        $key = self::hash( $iv . $this->psw );
+        $key = hash( $this->hash, $iv . $this->psw, true );
 
         if( $this->macsz )
-            $iv .= substr( self::hash( $data . $key ), 0, $this->macsz );
+            $iv .= substr( hash( $this->hash, $data . $key, true ), 0, $this->macsz );
 
-        return $iv . self::cbc( $iv, $key, $data, true );
+        return $iv . $this->cbc( $iv, $key, $data, true );
     }
 
     /**
@@ -64,13 +64,12 @@ class Cryptash
         if( strlen( $data ) < 2 * $this->ivsz + $this->macsz )
             return false;
 
-        $key = self::hash( substr( $data, 0, $this->ivsz ) . $this->psw );
+        $key = hash( $this->hash, substr( $data, 0, $this->ivsz ) . $this->psw, true );
         if( $this->macsz )
             $mac = substr( $data, $this->ivsz, $this->macsz );
-        $data = self::cbc( substr( $data, 0, $this->ivsz + $this->macsz ),
-                           $key, substr( $data, $this->macsz + $this->ivsz ) );
+        $data = $this->cbc( substr( $data, 0, $this->ivsz + $this->macsz ), $key, substr( $data, $this->macsz + $this->ivsz ), false );
 
-        if( $this->macsz && $mac !== substr( self::hash( $data . $key ), 0, $this->macsz ) )
+        if( $this->macsz && $mac !== substr( hash( $this->hash, $data . $key, true ), 0, $this->macsz ) )
             return false;
 
         if( strlen( $data ) === $this->ivsz )
@@ -114,23 +113,21 @@ class Cryptash
         return $rnd;
     }
 
-    private function hash( $data )
+    private function cbc( $v, $k, $d, $e )
     {
-        return hash( $this->hash, $data, true );
-    }
-
-    private function cbc( $v, $k, $d, $e = false )
-    {
-        $s = $this->cbcsz;
         $n = strlen( $d );
-        $k = self::hash( $v . $k );
+        if( $n === 0 )
+            return '';
+
+        $s = $this->cbcsz;
+        $k = hash( $this->hash, $v . $k, true );
         $o = $d;
 
-        for( $i = 0, $j = 0; $i < $n; $i++, $j++ )
+        for( $i = 0, $j = 0; $i < $n; ++$i, ++$j )
         {
-            if( $j == $s )
+            if( $j === $s )
             {
-                $k = self::hash( substr( $e ? $o : $d, $i - $j, $j ) . $k );
+                $k = hash( $this->hash, substr( $e ? $o : $d, $i - $s, $s ) . $k, true );
                 $j = 0;
             }
 
