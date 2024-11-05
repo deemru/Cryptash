@@ -23,7 +23,12 @@ class Cryptash
         $this->psw = $psw;
         $this->hash = $hash;
         $this->ivsz = max( 0, $ivsz );
-        $this->cbcsz = strlen( hash( $this->hash, '', true ) );
+        switch( $hash )
+        {
+            case 'sha256': $this->cbcsz = 32; break;
+            case 'sha512': $this->cbcsz = 64; break;
+            default: $this->cbcsz = strlen( hash( $this->hash, '', true ) );
+        }
         $this->macsz = min( $macsz, $this->cbcsz );
     }
 
