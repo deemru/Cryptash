@@ -43,8 +43,8 @@ class Cryptash
     {
         if( $this->ivsz )
         {
-            $iv = $this->rnd( $this->ivsz );
-            $data = $this->rnd( $this->ivsz ) . $data;
+            $iv = self::rnd( $this->ivsz );
+            $data = self::rnd( $this->ivsz ) . $data;
         }
         else
             $iv = '';
@@ -90,32 +90,27 @@ class Cryptash
      *
      * @return string
      */
-    static public function rnd( $size = 8 )
+    public static function rnd( $size = 8 )
     {
-        static $rndfn;
-
         if( $size === 0 )
             return '';
 
+        static $rndfn;
         if( !isset( $rndfn ) )
         {
             if( function_exists( 'random_bytes' ) )
-                $rndfn = 2;
-            else if( function_exists( 'mcrypt_create_iv' ) )
-                $rndfn = 1;
+                $rndfn = 'random_bytes';
             else
-                $rndfn = 0;
+            if( function_exists( 'openssl_random_pseudo_bytes' ) )
+                $rndfn = 'openssl_random_pseudo_bytes';
+            else
+            if( function_exists( 'mcrypt_create_iv' ) )
+                $rndfn = 'mcrypt_create_iv';
+            else
+                throw new \Exception( 'No secure random source available' );
         }
-        
-        if( $rndfn === 2 )
-            return random_bytes( $size );
-        if( $rndfn === 1 )
-            return mcrypt_create_iv( $size );
 
-        $rnd = '';
-        while( $size-- )
-            $rnd .= chr( mt_rand() );
-        return $rnd;
+        return $rndfn( $size );
     }
 
     private function cbc( $v, $k, $d, $e )
@@ -126,17 +121,18 @@ class Cryptash
 
         $s = $this->cbcsz;
         $k = hash( $this->hash, $v . $k, true );
-        $o = $d;
+        $o = '';
 
-        for( $i = 0, $j = 0; $i < $n; ++$i, ++$j )
+        for( $i = 0;; )
         {
-            if( $j === $s )
-            {
-                $k = hash( $this->hash, substr( $e ? $o : $d, $i - $s, $s ) . $k, true );
-                $j = 0;
-            }
+            $l = min( $s, $n - $i );
+            $o .= substr( $d, $i, $l ) ^ substr( $k, 0, $l );
 
-            $o[$i] = $d[$i] ^ $k[$j];
+            $i += $l;
+            if( $i >= $n )
+                break;
+
+            $k = hash( $this->hash, substr( $e ? $o : $d, $i - $s, $s ) . $k, true );
         }
 
         return $o;
