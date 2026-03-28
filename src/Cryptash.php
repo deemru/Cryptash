@@ -14,22 +14,22 @@ class Cryptash
      * Creates Cryptash instance
      *
      * @param  string $psw Password string as a secret
-     * @param  int $ivsz Size of initialization vector
-     * @param  int $macsz Size of message authentication code
+     * @param  int $ivsz Size of initialization vector (max: hash_size / 2)
+     * @param  int $macsz Size of message authentication code (max: hash_size)
      * @param  string $hash Hash type to use
      */
     public function __construct( $psw, $ivsz = 4, $macsz = 4, $hash = 'sha256' )
     {
         $this->psw = $psw;
         $this->hash = $hash;
-        $this->ivsz = max( 0, $ivsz );
         switch( $hash )
         {
             case 'sha256': $this->cbcsz = 32; break;
             case 'sha512': $this->cbcsz = 64; break;
             default: $this->cbcsz = strlen( hash( $this->hash, '', true ) );
         }
-        $this->macsz = min( $macsz, $this->cbcsz );
+        $this->ivsz = min( max( 0, $ivsz ), $this->cbcsz >> 1 );
+        $this->macsz = min( max( 0, $macsz ), $this->cbcsz );
     }
 
     /**
@@ -43,8 +43,9 @@ class Cryptash
     {
         if( $this->ivsz )
         {
-            $iv = self::rnd( $this->ivsz );
-            $data = self::rnd( $this->ivsz ) . $data;
+            $rnd = self::rnd( $this->ivsz * 2 );
+            $iv = substr( $rnd, 0, $this->ivsz );
+            $data = substr( $rnd, $this->ivsz, $this->ivsz ) . $data;
         }
         else
             $iv = '';
